@@ -26,3 +26,7 @@ All fixtures are sanitized. Every conversation text, command, output and path is
 - Nothing leaves the machine except the opt-in live resume check.
 
 Requires Node 24+.
+
+## License
+
+[MIT](LICENSE)
