@@ -60,7 +60,7 @@ describe("transcript renderer", () => {
       { role: "assistant", text: "▸ ran `ls` → exit 0\n\ndone" },
     ]);
     expect(a.entries[0]).toMatchObject({ type: "user", isMeta: true, parentUuid: null });
-    expect(a.entries.at(-1)).toEqual({ type: "custom-title", customTitle: "[Codex] Fix login", sessionId: opts.sessionId });
+    expect(a.entries.at(-1)).toEqual({ type: "custom-title", customTitle: "Codex: Fix login", sessionId: opts.sessionId });
   });
 
   it("shows interrupted turns and turns without a reply", () => {

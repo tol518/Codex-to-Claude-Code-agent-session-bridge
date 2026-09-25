@@ -6,7 +6,11 @@ import { isAbsolute, relative } from "node:path";
 import type { Item, Session } from "../canonical.ts";
 import type { AssistantEntry, Entry, UserEntry } from "./schema.ts";
 
-export const RENDERER_VERSION = "transcript-1";
+export const RENDERER_VERSION = "transcript-2";
+
+// Shown as the session name in `claude --resume` and, after the desktop app's
+// "Import Claude Code CLI Sessions…", as the Code tab sidebar title.
+export const importedTitle = (name: string | null) => `Codex: ${name ?? "untitled"}`;
 
 export type RenderOptions = {
   sessionId: string;
@@ -163,7 +167,7 @@ export function renderTranscript(session: Session, opts: RenderOptions): Rendere
     flush();
     if (userSeen && !replied) assistant(at, "(Codex recorded no reply.)");
   }
-  entries.push({ type: "custom-title", customTitle: `[Codex] ${title}`, sessionId });
+  entries.push({ type: "custom-title", customTitle: importedTitle(src.title), sessionId });
 
   const jsonl = entries.map((e) => JSON.stringify(e)).join("\n") + "\n";
   return { entries, jsonl, approxTokens: Math.round(conversation.reduce((s, m) => s + m.text.length, 0) / 4), conversation };

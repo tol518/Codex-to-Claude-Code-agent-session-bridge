@@ -8,7 +8,7 @@ import { readCodexThread } from "./codex/reader.ts";
 import type { CodexThread } from "./codex/threads.ts";
 import { codexHome } from "./env.ts";
 import { isSessionLive, projectDirFor, sessionFilesById } from "./claude/project.ts";
-import { renderTranscript, RENDERER_VERSION, stableUuid } from "./claude/transcript.ts";
+import { importedTitle, renderTranscript, RENDERER_VERSION, stableUuid } from "./claude/transcript.ts";
 import { createExclusive, deleteIfOurs, fileSha, newOpId, sha256, tempPathFor } from "./safety.ts";
 import type { Store } from "./store.ts";
 import { l1, l2, l3 } from "./validate.ts";
@@ -95,7 +95,7 @@ export async function importThread(store: Store, thread: CodexThread, opts: Impo
     store.setOp(opId, "rolled_back", { detail: { error: String(e) } });
     return { status: "failed", threadId, reason: `write failed: ${String(e)}` };
   }
-  const title = `[Codex] ${thread.title ?? "untitled"}`;
+  const title = importedTitle(thread.title);
   const checks = [...pre, l2(rendered.jsonl, sessionId), await l3(sessionId, cwd, rendered, title)];
   if (checks.some((c) => !c.ok)) {
     const undo = deleteIfOurs(store, opId, target, expected);
@@ -175,4 +175,30 @@ export function targetState(m: { status: string; target_path: string; target_sha
   if (m.status === "rolled_back") return "rolled_back";
   const s = fileSha(m.target_path);
   return s === null ? "missing" : s === m.target_sha256 ? "ok" : "continued";
+}
+
+// Re-render imports that are still byte-identical to what we wrote, after a converter upgrade.
+// The new generation is written and verified first; the old copy is removed only afterwards and only
+// through rollback's hash guard, so a failure never leaves the thread without a working session.
+export async function refresh(store: Store, threads: CodexThread[], opts: ImportOptions = {}): Promise<string[]> {
+  const out: string[] = [];
+  const byId = new Map(threads.map((t) => [t.id, t]));
+  const latest = new Map<string, ReturnType<Store["mappings"]>[number]>();
+  for (const m of store.mappings()) if (m.mode === MODE && (latest.get(m.thread_id)?.generation ?? -1) < m.generation) latest.set(m.thread_id, m);
+  for (const m of latest.values()) {
+    const thread = byId.get(m.thread_id);
+    if (m.status !== "active" || m.converter === CONVERTER || !thread) continue;
+    const state = targetState(m);
+    if (state !== "ok") {
+      out.push(`${m.target_session_id}: ${state}, left as is`);
+      continue;
+    }
+    const r = await importThread(store, thread, { ...opts, newGeneration: true });
+    if (r.status !== "imported") {
+      out.push(`${m.target_session_id}: not refreshed (${r.status}${"reason" in r ? `: ${r.reason}` : ""})`);
+      continue;
+    }
+    out.push(`${m.target_session_id} -> ${r.sessionId}: refreshed; old copy ${rollback(store, m.target_session_id)}`);
+  }
+  return out;
 }

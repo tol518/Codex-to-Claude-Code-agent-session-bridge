@@ -17,10 +17,18 @@ cd <project> && claude --resume <session-id>   # the id works from any folder; c
 ./bin/asb rollback <session-id>     # remove an import, only if you have not continued it (backup kept)
 ```
 
+### Showing imports in the desktop app's Code tab
+
+The sidebar reads the app's own session registry, not `~/.claude/projects`. After `asb import`, run the app's own importer once: **Help → Troubleshooting → Import Claude Code CLI Sessions…**. Each session lands in the group for the folder Codex worked in, for example `~/openclaw`.
+
+The app only offers sessions from folders you have trusted in Claude. Open a folder in the Code tab once to trust it, then run the importer again.
+
+After upgrading asb, run `asb refresh` **before** the app import. It re-renders untouched imports: the new copy is written and verified first, then the old one is removed.
+
 ### How a Codex thread shows up in Claude
 
 - The first entry is a hidden note. It tells Claude the history came from Codex.
-- The title is `[Codex] <thread name>`.
+- The title is `Codex: <thread name>`.
 - User and assistant messages are kept as written.
 - Codex's tool calls become short capped lines inside the assistant's text:
   ```
@@ -44,7 +52,6 @@ cd <project> && claude --resume <session-id>   # the id works from any folder; c
 ### Known limits (Phase 1)
 
 - Codex Desktop scans `~/.claude/projects` and **will offer imported sessions back** under "import from Claude". Ignore those offers; loop prevention arrives in Phase 3.
-- Imported sessions appear in `claude --resume`, not in the desktop app's Code tab sidebar.
 - A thread that grew after import is refused until Phase 4's append. Pass `--new-generation` to write a fresh, separate copy.
 
 ## Development

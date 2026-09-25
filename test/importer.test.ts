@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { projectDirFor } from "../src/claude/project.ts";
 import { listThreads } from "../src/codex/threads.ts";
 import type { CodexThread } from "../src/codex/threads.ts";
-import { importThread, restore, rollback } from "../src/importer.ts";
+import { importThread, refresh, restore, rollback } from "../src/importer.ts";
 import { createExclusive, fileSha, recover, sha256, tempPathFor } from "../src/safety.ts";
 import { Store } from "../src/store.ts";
 import { agent, command, makeEnv, Rollout } from "./helpers.ts";
@@ -199,5 +199,22 @@ describe("real kill -9 during import", () => {
     expect(store.mappings()).toHaveLength(committed ? 1 : 0);
     const again = await importThread(store, (await listThreads()).find((t) => t.id === THREAD)!);
     expect(again.status).toBe(committed ? "unchanged" : "imported");
+  });
+});
+
+describe("refresh", () => {
+  it("re-renders an untouched import after a converter change and leaves continued ones alone", async () => {
+    const r = await importThread(store, codexThread().thread);
+    if (r.status !== "imported") throw new Error(r.status);
+    store.db.prepare("update mappings set converter = 'old', source_fingerprint = 'old' where target_session_id = ?").run(r.sessionId);
+    const lines = await refresh(store, [codexThread().thread]);
+    expect(lines).toEqual([expect.stringMatching(/refreshed; old copy removed/)]);
+    expect(existsSync(r.path)).toBe(false);
+    const now = store.latestMapping("codex", THREAD, "transcript")!;
+    expect(now.generation).toBe(1);
+    expect(readFileSync(now.target_path, "utf8")).toContain('"customTitle":"Codex: Explain main"');
+    appendFileSync(now.target_path, "{}\n");
+    store.db.prepare("update mappings set converter = 'old', source_fingerprint = 'old' where id = ?").run(now.id);
+    expect(await refresh(store, [codexThread().thread])).toEqual([`${now.target_session_id}: continued, left as is`]);
   });
 });

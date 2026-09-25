@@ -2,7 +2,7 @@
 import { parseArgs } from "node:util";
 import { listThreads } from "./codex/threads.ts";
 import type { CodexThread } from "./codex/threads.ts";
-import { importThread, MODE, restore, rollback, targetState } from "./importer.ts";
+import { importThread, MODE, refresh, restore, rollback, targetState } from "./importer.ts";
 import type { ImportResult } from "./importer.ts";
 import { recover } from "./safety.ts";
 import { Store } from "./store.ts";
@@ -19,7 +19,11 @@ const HELP = `asb: move Codex sessions into resumable Claude Code sessions
   asb status                       imported sessions and whether their files are ok/missing/continued
   asb rollback <session-id>        remove an import (only if unchanged since import; backup kept)
   asb restore [<session-id>]       rewrite imported copies Claude's cleanup deleted
+  asb refresh                      re-render untouched imports after an asb upgrade (new copy first, then old removed)
   asb report <thread-id>           last conversion report (counts only)
+
+Desktop app: after importing, use Help > Troubleshooting > Import Claude Code CLI Sessions… once
+to add the sessions to the Code tab sidebar (only folders you have trusted in Claude are offered).
 
 Sources are read-only. Claude files are only added, never overwritten.`;
 
@@ -103,6 +107,9 @@ async function main() {
       case "rollback":
         if (!args[0]) throw new Error("usage: asb rollback <session-id>");
         return console.log(rollback(store, args[0]));
+      case "refresh":
+        for (const line of await refresh(store, await listThreads(), { includeReasoning: values["include-reasoning"] })) console.log(line);
+        return;
       case "restore":
         for (const line of await restore(store, args[0])) console.log(line);
         return;
