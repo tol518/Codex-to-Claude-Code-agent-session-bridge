@@ -11,7 +11,7 @@ npm install
 ./bin/asb list                      # your Codex threads and their import state
 ./bin/asb import <thread-id>        # unique id prefixes work; add --dry-run to only render + validate
 ./bin/asb import --all-native       # every real Codex conversation (skips subagent/guardian threads and Codex's own Claude imports)
-cd <project> && claude --resume <session-id>
+cd <project> && claude --resume <session-id>   # the id works from any folder; cd first so Claude's tools run in the right project
 ./bin/asb status                    # ok / missing (Claude cleaned it up) / continued (you kept going in Claude)
 ./bin/asb restore                   # rewrite copies Claude's 30-day cleanup deleted
 ./bin/asb rollback <session-id>     # remove an import, only if you have not continued it (backup kept)
