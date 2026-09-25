@@ -96,3 +96,24 @@ The sanitizer keeps short enum-like values under structural keys (types, ids, st
 - **No rollout drift at the installed tag.** Every line type (`world_state`, `token_usage_record`, `inter_agent_communication_metadata`, …) and every item kind is in `RolloutItem` (`codex-rs/history/src/lib.rs:125`) and `TurnItem` (`codex-rs/protocol/src/items.rs:46`). The earlier "unknown types" came from the stale July checkout. Read source at the tag with `git show "${T}:path"`. In zsh, quote the braces, because `$T:c…` is parsed as a modifier.
 - `codex app-server generate-json-schema --out` works (snapshot in `fixtures/codex/schema-0.155.0-alpha.16.4/`). It covers the app-server protocol (v2 thread items), **not** the rollout line format. The rollout drift gate must use tag source plus the unknown-type counts.
 - Claude Code **2.1.268 is older than 2.1.275**, the first version that tolerates unknown entry types on resume. So the writer must emit only the entry types listed in answer 2.
+
+## Phase 1 source facts
+
+These are not in the original plan. Each was checked at `rust-v0.155.0-alpha.16.4`.
+
+- **Rollout filenames are `rollout-<ts>-<threadId>[_<rolloutId>].jsonl[.zst]`.** A plain name means the rollout id equals the thread id (`codex-rs/rollout/src/rollout_file_name.rs`, `RolloutFileName::parse`).
+  - `SessionMeta.history_base.thread_id` names a **rollout id**, not a thread id. It points at a prefix file whose records are inherited up to `end_byte_offset`. Codex writes this on revert and on referenced forks.
+  - Chains nest: one local thread spans **9 files**. Reading only its current file gave 26 of its 199 turns.
+- **A thread's current file comes from `$CODEX_HOME/state_<n>.sqlite` `threads.rollout_path`.** After a revert, older files stay on disk. Without the DB, the newest filename wins, as in Codex's own fallback.
+- **`CommandExecutionItem.cwd` (and other path fields) are `PathUri` values (`file:///…`), not plain paths.**
+- **All 142 local `compacted` lines have an empty `message`.** Their summaries are encrypted, so a compaction renders as a marker line.
+- **Every local command is `["/bin/zsh", "-lc", <cmd>]`.** The reader shows `<cmd>`.
+- **Codex Desktop embeds UI context inside user text**, as `<in-app-browser-context>`, `<ide_opened_file>`, `<ide_selection>` and `<response-annotations>` blocks. They are split out as `context_injection`.
+- **26 of the 53 non-subagent threads are Codex's own imports of Claude sessions.** They are listed in `external_agent_session_imports.json` `imported_thread_id`, and are skipped by default to avoid a loop. That leaves 27 native threads locally.
+- `thread-writer-locks/<id>.lock` files are held by the running Codex app for threads open in it.
+- **Raw capture needs image deduplication.** In the 27 native threads, 653 of 895 MB is base64 screenshots, 177 MB of it unique, and compaction `replacement_history` re-embeds them. The store is 212 MB with deduplication and 499 MB without.
+
+Phase 1 exit results, measured on the real corpus into a temp `CLAUDE_CONFIG_DIR`:
+- all 27 native threads import with 0 L2 violations, and all pass L3;
+- a re-run is a no-op for all 27;
+- a real SIGKILL at each journal state (planned, staged, written, verified, committed) recovers to a clean, re-importable state (`test/importer.test.ts`).

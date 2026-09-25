@@ -1,0 +1,3 @@
+#!/bin/sh
+# node:sqlite prints an ExperimentalWarning on Node 24; everything else stays visible.
+exec node --disable-warning=ExperimentalWarning "$(dirname "$(realpath "$0")")/../src/cli.ts" "$@"
