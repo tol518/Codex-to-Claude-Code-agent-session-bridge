@@ -1,4 +1,4 @@
-# agent-session-bridge
+# Codex to Claude Code agent session bridge
 
 This local tool turns Codex CLI/Desktop sessions into Claude Code sessions that `claude --resume` can open. The reverse direction, incremental handoff sync and more agents are planned.
 

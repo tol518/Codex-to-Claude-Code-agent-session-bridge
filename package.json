@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
+  "description": "Codex to Claude Code agent session bridge",
   "type": "module",
   "bin": {
     "asb": "bin/asb"
