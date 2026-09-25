@@ -1,0 +1,7 @@
+node_modules/
+spikes/work*/
+spikes/cc*/
+spikes/.id-*
+spikes/*.json
+*.log
+.DS_Store

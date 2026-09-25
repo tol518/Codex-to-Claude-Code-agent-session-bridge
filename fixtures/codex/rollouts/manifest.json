@@ -1,0 +1,167 @@
+{
+ "capturedWith": "codex-cli 0.155.0-alpha.16.4",
+ "maxLines": 1500,
+ "fixtures": [
+  {
+   "fixture": "r01-function_call_inter_agent_paginated_subagent_world_state.jsonl",
+   "sourceLines": 51,
+   "keptLines": 51,
+   "truncated": false,
+   "features": [
+    "function_call",
+    "inter_agent",
+    "item:AgentMessage",
+    "item:Extension",
+    "item:SubAgentActivity",
+    "item:UserMessage",
+    "paginated",
+    "subagent",
+    "world_state"
+   ]
+  },
+  {
+   "fixture": "r02-function_call_inter_agent_paginated_subagent_world_state.jsonl",
+   "sourceLines": 58,
+   "keptLines": 58,
+   "truncated": false,
+   "features": [
+    "function_call",
+    "inter_agent",
+    "item:AgentMessage",
+    "item:Extension",
+    "item:SubAgentActivity",
+    "item:UserMessage",
+    "paginated",
+    "subagent",
+    "world_state"
+   ]
+  },
+  {
+   "fixture": "r03-compacted_function_call_paginated_turn_aborted_world_state.jsonl",
+   "sourceLines": 1292,
+   "keptLines": 1292,
+   "truncated": false,
+   "features": [
+    "compacted",
+    "function_call",
+    "item:AgentMessage",
+    "item:CommandExecution",
+    "item:ContextCompaction",
+    "item:Extension",
+    "item:FileChange",
+    "item:ImageView",
+    "item:McpToolCall",
+    "item:Reasoning",
+    "item:UserMessage",
+    "paginated",
+    "turn_aborted",
+    "world_state"
+   ]
+  },
+  {
+   "fixture": "r04-compacted_function_call_paginated_world_state.jsonl",
+   "sourceLines": 605,
+   "keptLines": 605,
+   "truncated": false,
+   "features": [
+    "compacted",
+    "function_call",
+    "item:AgentMessage",
+    "item:CommandExecution",
+    "item:ContextCompaction",
+    "item:Extension",
+    "item:FileChange",
+    "item:ImageView",
+    "item:McpToolCall",
+    "item:Reasoning",
+    "item:UserMessage",
+    "paginated",
+    "world_state"
+   ]
+  },
+  {
+   "fixture": "r05-legacy_subagent.jsonl",
+   "sourceLines": 3,
+   "keptLines": 3,
+   "truncated": false,
+   "features": [
+    "legacy",
+    "subagent"
+   ]
+  },
+  {
+   "fixture": "r06-legacy_subagent.jsonl",
+   "sourceLines": 3,
+   "keptLines": 3,
+   "truncated": false,
+   "features": [
+    "legacy",
+    "subagent"
+   ]
+  },
+  {
+   "fixture": "r07-paginated_turn_aborted.jsonl",
+   "sourceLines": 9,
+   "keptLines": 9,
+   "truncated": false,
+   "features": [
+    "item:UserMessage",
+    "paginated",
+    "turn_aborted"
+   ]
+  },
+  {
+   "fixture": "r08-paginated_world_state.jsonl",
+   "sourceLines": 30,
+   "keptLines": 30,
+   "truncated": false,
+   "features": [
+    "item:AgentMessage",
+    "item:UserMessage",
+    "item:WebSearch",
+    "paginated",
+    "world_state"
+   ]
+  },
+  {
+   "fixture": "r09-bad-line_compacted_function_call_paginated_turn_aborted_world_state.jsonl",
+   "sourceLines": 9132,
+   "keptLines": 1500,
+   "truncated": true,
+   "features": [
+    "bad-line",
+    "compacted",
+    "function_call",
+    "item:AgentMessage",
+    "item:ContextCompaction",
+    "item:FileChange",
+    "item:McpToolCall",
+    "item:Reasoning",
+    "item:UserMessage",
+    "item:WebSearch",
+    "paginated",
+    "turn_aborted",
+    "world_state"
+   ]
+  },
+  {
+   "fixture": "r10-function_call_inter_agent_multi-meta_paginated_subagent_world_state.jsonl",
+   "sourceLines": 308,
+   "keptLines": 308,
+   "truncated": false,
+   "features": [
+    "function_call",
+    "inter_agent",
+    "item:AgentMessage",
+    "item:CommandExecution",
+    "item:Extension",
+    "item:Reasoning",
+    "item:SubAgentActivity",
+    "multi-meta",
+    "paginated",
+    "subagent",
+    "world_state"
+   ]
+  }
+ ]
+}
